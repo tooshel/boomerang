@@ -1,5 +1,8 @@
 boomerang
 =========
+
+[![Join the chat at https://gitter.im/gdg-x/boomerang](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gdg-x/boomerang?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Boomerang is a template for a basic GDG web site that can be deployed within 30 minutes.
 
 See it in action: http://gdg-x.github.io/boomerang
@@ -55,3 +58,8 @@ Deployment
 ---------------
 Deploy on your web server of choice (Apache, Nginx, etc).
 If you need a web server, Google App Engine's free tier should be more than sufficient for your chapter's needs.
+
+Example sites using this template
+---------------
+* http://www.gdgfresno.com/
+* http://gdgspacecoast.org/
