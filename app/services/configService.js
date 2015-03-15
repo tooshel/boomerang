@@ -6,6 +6,9 @@ boomerang.factory('Config', function () {
         'google_api'    : 'AIzaSyA9ALjr2iWvhf3Rsz9-bH0cEcDcrdkpuAg',
         'pwa_id'        : '5915725140705884785', // Picasa Web Album id, must belong to Google+ id above
         'domain'        : 'http://www.gdgspacecoast.org',
+        'twitter'       : 'gdgspacecoast',
+        'facebook'      : 'gdgspacecoast',
+        'meetup'        : 'gdgspacecoast',
         'cover' : {
             title: 'GDG Events Worldwide',
             subtitle: 'Worldwide directory of developer events organized by tags and displayed on a map.',
