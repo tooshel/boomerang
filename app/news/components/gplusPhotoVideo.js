@@ -4,6 +4,6 @@ boomerang.directive('gplusPhotoVideo', function () {
             article: '=',
             attachment: '='
         },
-        templateUrl: 'gplusPhotoVideo.html'
+        templateUrl: '/boomerang/app/news/components/gplusPhotoVideo.html'
     }
 });

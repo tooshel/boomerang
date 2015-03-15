@@ -1,6 +1,6 @@
 boomerang.directive('gplusEvent', function () {
     return {
         scope: { article: '=' },
-        templateUrl: 'gplusEvent.html'
+        templateUrl: '/boomerang/app/news/components/gplusEvent.html'
     }
 });
