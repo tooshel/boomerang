@@ -4,6 +4,6 @@ boomerang.directive('gplusArticle', function () {
             article: '=',
             attachment: '='
         },
-        templateUrl: 'app/news/components/gplusArticle.html'
+        templateUrl: 'gplusArticle.html'
     }
 });
