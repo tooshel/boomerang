@@ -6,8 +6,7 @@
         <h3 ng-show="events.future.length" class="span12">Upcoming Events</h3>
         <div class="media span12" ng-repeat="event in events.future | orderBy:'start'">
             <a class="pull-left" ng-href="https://developers.google.com/events/{{event._id}}/" target="_blank">
-                <img class="media-object" alt="GDG Boomerang"
-                     ng-src="https://developers.google.com{{ event.iconUrl || '/_static/images/gdg-icon.png' }}">
+                <img class="media-object" ng-src="https://developers.google.com{{event.iconUrl}}" alt="GDG Boomerang">
             </a>
             <div class="media-body">
                 <h4 class="media-heading">
@@ -23,8 +22,7 @@
         <h3 ng-show="events.past.length" class="span12">Past Events</h3>
         <div class="media span12" ng-repeat="event in events.past | orderBy:'start':true">
             <a class="pull-left" ng-href="https://developers.google.com/events/{{event._id}}/" target="_blank">
-                <img class="media-object" alt="GDG Boomerang"
-                     ng-src="https://developers.google.com{{ event.iconUrl || '/_static/images/gdg-icon.png' }}">
+                <img class="media-object" ng-src="https://developers.google.com{{event.iconUrl}}" alt="GDG Boomerang">
             </a>
             <div class="media-body">
                 <h4 class="media-heading">
