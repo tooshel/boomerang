@@ -1,13 +1,12 @@
-var boomerang = angular.module('gdgXBoomerang', ['ngRoute', 'ngSanitize', 'ngAria', 'ngAnimate', 'ngMaterial']);
-
-boomerang.controller('MainController', function ($rootScope, Config, NavService) {
+angular.module('gdgXBoomerang', ['ngRoute', 'ngSanitize', 'ngAria', 'ngAnimate', 'ngMaterial'])
+.controller('MainController', function ($rootScope, Config, NavService) {
     var mc = this;
-    mc.chapter_name = Config.name;
-    mc.google_plus_link = 'https://plus.google.com/' + Config.id;
-    mc.gdg_link = 'https://developers.google.com/groups/chapter/' + Config.id + '/';
-    mc.twitter_link = Config.twitter ? 'https://twitter.com/' + Config.twitter: null;
-    mc.facebook_link = Config.facebook ? 'https://www.facebook.com/' + Config.facebook: null;
-    mc.meetup_link = Config.meetup ? 'http://www.meetup.com/' + Config.meetup: null;
+    mc.chapterName = Config.name;
+    mc.googlePlusLink = 'https://plus.google.com/' + Config.id;
+    mc.gdgLink = 'https://developers.google.com/groups/chapter/' + Config.id + '/';
+    mc.twitterLink = Config.twitter ? 'https://twitter.com/' + Config.twitter : null;
+    mc.facebookLink = Config.facebook ? 'https://www.facebook.com/' + Config.facebook : null;
+    mc.meetupLink = Config.meetup ? 'http://www.meetup.com/' + Config.meetup : null;
     $rootScope.canonical = Config.domain;
 
     NavService.registerNavListener(function (tab) {
@@ -15,15 +14,16 @@ boomerang.controller('MainController', function ($rootScope, Config, NavService)
     });
 });
 
-boomerang.config(function ($routeProvider, $locationProvider, $mdThemingProvider) {
+angular.module('gdgXBoomerang')
+.config(function ($routeProvider, $locationProvider, $mdThemingProvider) {
 
     $locationProvider.hashPrefix('!');
 
     $routeProvider.
-        when("/about", {templateUrl: 'app/about/about.html', controller: "AboutController", controllerAs: 'vm'}).
-        when("/news", {templateUrl: 'app/news/news.html', controller: "NewsController", controllerAs: 'vm'}).
-        when("/events", {templateUrl: 'app/events/events.html', controller: "EventsController", controllerAs: 'vm'}).
-        when("/photos", {templateUrl: 'app/photos/photos.html', controller: "PhotosController", controllerAs: 'vm'}).
+        when('/about', {templateUrl: 'app/about/about.html', controller: 'AboutController', controllerAs: 'vm'}).
+        when('/news', {templateUrl: 'app/news/news.html', controller: 'NewsController', controllerAs: 'vm'}).
+        when('/events', {templateUrl: 'app/events/events.html', controller: 'EventsController', controllerAs: 'vm'}).
+        when('/photos', {templateUrl: 'app/photos/photos.html', controller: 'PhotosController', controllerAs: 'vm'}).
         otherwise({ redirectTo: '/about' });
 
     $mdThemingProvider.theme('default')
@@ -31,13 +31,14 @@ boomerang.config(function ($routeProvider, $locationProvider, $mdThemingProvider
         .accentPalette('deep-orange');
 });
 
-boomerang.factory('Config', function () {
+angular.module('gdgXBoomerang')
+.factory('Config', function () {
     return {
         // TODO Modify these to configure your app
         'name'          : 'GDG Space Coast',
         'id'            : '103959793061819610212',
-        'google_api'    : 'AIzaSyA9ALjr2iWvhf3Rsz9-bH0cEcDcrdkpuAg',
-        'pwa_id'        : '5915725140705884785', // Picasa Web Album id, must belong to Google+ id above
+        'googleApi'     : '<insert your API key here>',
+        'pwaId'         : '5915725140705884785', // Picasa Web Album id, must belong to Google+ id above
         'domain'        : 'http://www.gdgspacecoast.org',
         'twitter'       : 'gdgspacecoast',
         'facebook'      : 'gdgspacecoast',
@@ -56,7 +57,8 @@ boomerang.factory('Config', function () {
     };
 });
 
-boomerang.factory('NavService', function () {
+angular.module('gdgXBoomerang')
+.factory('NavService', function () {
     var navTab = '0';
     var navListener;
 
@@ -68,7 +70,9 @@ boomerang.factory('NavService', function () {
 
     function setNavTab(tabValue) {
         navTab = tabValue;
-        navListener(navTab);
+        if (navListener) {
+            navListener(navTab);
+        }
     }
 
     function getNavTab() {
@@ -80,14 +84,15 @@ boomerang.factory('NavService', function () {
     }
 });
 
-boomerang.controller('AboutController', function ($http, $sce, Config, NavService) {
+angular.module('gdgXBoomerang')
+.controller('AboutController', function ($http, $sce, Config, NavService) {
     var vm = this;
     vm.loading = true;
     NavService.setNavTab(0);
     vm.cover = Config.cover;
 
     $http.jsonp('https://www.googleapis.com/plus/v1/people/' + Config.id +
-            '?callback=JSON_CALLBACK&fields=aboutMe%2Ccover%2Cimage%2CplusOneCount&key=' + Config.google_api).
+            '?callback=JSON_CALLBACK&fields=aboutMe%2Ccover%2Cimage%2CplusOneCount&key=' + Config.googleApi).
         success(function (data) {
             vm.desc = data.aboutMe;
             $sce.trustAsHtml(vm.desc);
@@ -99,14 +104,15 @@ boomerang.controller('AboutController', function ($http, $sce, Config, NavServic
             vm.status = 'ready';
         })
         .error(function (error) {
-            vm.desc = "Sorry, we failed to retrieve the About text from the Google+ API.";
+            vm.desc = 'Sorry, we failed to retrieve the About text from the Google+ API.';
             vm.loading = false;
             vm.status = 'ready';
         });
 });
 
 // Google+ hashtag linky from http://plnkr.co/edit/IEpLfZ8gO2B9mJcTKuWY?p=preview
-boomerang.filter('hashLinky', function() {
+angular.module('gdgXBoomerang')
+.filter('hashLinky', function() {
     var ELEMENT_NODE = 1;
     var TEXT_NODE = 3;
     var linkifiedDOM = document.createElement('div');
@@ -145,7 +151,8 @@ boomerang.filter('hashLinky', function() {
 });
 
 // HTML-ified linky from http://plnkr.co/edit/IEpLfZ8gO2B9mJcTKuWY?p=preview
-boomerang.filter('htmlLinky', function($filter) {
+angular.module('gdgXBoomerang')
+.filter('htmlLinky', function($filter) {
     var ELEMENT_NODE = 1;
     var TEXT_NODE = 3;
     var linkifiedDOM = document.createElement('div');
@@ -180,10 +187,11 @@ boomerang.filter('htmlLinky', function($filter) {
     }
 });
 
-boomerang.controller("EventsController", function ($http, $log, $filter, Config, NavService) {
+angular.module('gdgXBoomerang')
+.controller('EventsController', function ($http, $log, $filter, Config, NavService) {
     var vm = this;
     NavService.setNavTab(2);
-    vm.chapter_name = Config.name;
+    vm.chapterName = Config.name;
     vm.loading = true;
     vm.dateFormat = Config.dateFormat;
     vm.events = { past:[], future:[] };
@@ -193,7 +201,12 @@ boomerang.controller("EventsController", function ($http, $log, $filter, Config,
     $http.jsonp(url, headers)
         .success(function (data) {
             for (var i = data.items.length - 1; i >= 0; i--) {
-                data.items[i].about = data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                if (data.items[i].about) {
+                    data.items[i].about =
+                        data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                } else {
+                    data.items[i].about = '';
+                }
                 vm.events.future.push(data.items[i]);
             }
             vm.events.future = $filter('orderBy')(vm.events.future, 'start', false);
@@ -201,20 +214,26 @@ boomerang.controller("EventsController", function ($http, $log, $filter, Config,
             vm.status = 'ready';
         })
         .error(function (response) {
-            vm.upcomingError = "Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API.";
+            vm.upcomingError = 'Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API.';
             vm.loading = false;
             vm.status = 'ready';
             $log.debug('Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API: ' + response);
         });
 
     var getPastEventsPage = function(page) {
-        var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id + '/events/past?callback=JSON_CALLBACK&page=' + page;
+        var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id +
+            '/events/past?callback=JSON_CALLBACK&page=' + page;
         var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 2000 };
         $http.jsonp(url, headers)
             .success(function (data) {
                 var i;
                 for (i = data.items.length - 1; i >= 0; i--) {
-                    data.items[i].about = data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                    if (data.items[i].about) {
+                        data.items[i].about =
+                            data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                    } else {
+                        data.items[i].about = '';
+                    }
                     vm.events.past.push(data.items[i]);
                 }
                 if (data.pages === page) {
@@ -226,7 +245,7 @@ boomerang.controller("EventsController", function ($http, $log, $filter, Config,
                 }
             })
             .error(function (response) {
-                vm.pastError = "Sorry, we failed to retrieve the past events from the GDG-X Hub API.";
+                vm.pastError = 'Sorry, we failed to retrieve the past events from the GDG-X Hub API.';
                 vm.loading = false;
                 vm.status = 'ready';
                 $log.debug('Sorry, we failed to retrieve the past events from the GDG-X Hub API: ' + response);
@@ -235,14 +254,15 @@ boomerang.controller("EventsController", function ($http, $log, $filter, Config,
     getPastEventsPage(1);
 });
 
-boomerang.controller("NewsController", function ($http, $timeout, $filter, $log, $sce, Config, NavService) {
+angular.module('gdgXBoomerang')
+.controller('NewsController', function ($http, $timeout, $filter, $log, $sce, Config, NavService) {
     var vm = this;
     NavService.setNavTab(1);
     vm.loading = true;
-    vm.chapter_name = Config.name;
+    vm.chapterName = Config.name;
 
     $http.jsonp('https://www.googleapis.com/plus/v1/people/' + Config.id +
-        '/activities/public?callback=JSON_CALLBACK&maxResults=20&key=' + Config.google_api)
+        '/activities/public?callback=JSON_CALLBACK&maxResults=20&key=' + Config.googleApi)
         .success(function (response) {
             var entries = [], i;
             var item, actor, object, itemTitle, html;
@@ -296,108 +316,130 @@ boomerang.controller("NewsController", function ($http, $timeout, $filter, $log,
         .error(handleError);
 
     function handleError(error) {
-        vm.desc = "Sorry, we failed to retrieve the news from the Google+ API.";
+        vm.desc = 'Sorry, we failed to retrieve the news from the Google+ API.';
         vm.loading = false;
         vm.status = 'ready';
         $log.debug('Sorry, we failed to retrieve the news from the Google+ API: ' + error);
     }
 });
 
-boomerang.controller("PhotosController", function ($http, Config, NavService) {
+angular.module('gdgXBoomerang')
+.controller('PhotosController', function ($http, Config, NavService) {
     var vm = this;
     vm.loading = true;
     NavService.setNavTab(3);
-    vm.chapter_name = Config.name;
+    vm.chapterName = Config.name;
     vm.photos = [];
 
-    var pwa = 'https://picasaweb.google.com/data/feed/api/user/' + Config.id + '/albumid/' + Config.pwa_id +
-        '?access=public&alt=json-in-script&kind=photo&max-results=50&fields=entry(title,link/@href,summary,content/@src)&v=2.0&callback=JSON_CALLBACK';
+    var pwa = 'https://picasaweb.google.com/data/feed/api/user/' + Config.id + '/albumid/' + Config.pwaId +
+        '?access=public&alt=json-in-script&kind=photo&max-results=50&' +
+        'fields=entry(title,link/@href,summary,content/@src)&v=2.0&callback=JSON_CALLBACK';
 
     $http.jsonp(pwa).
         success(function (data) {
-            var p = data.feed.entry;
-            for (var x in p) {
-                var photo = {
-                    link: p[x].link[1].href,
-                    src: p[x].content.src,
-                    alt: p[x].title.$t,
-                    title: p[x].summary.$t
-                };
-                vm.photos.push(photo);
+            var photoList = data.feed.entry;
+            var i;
+            if (photoList) {
+                // Use reverse ordering newest first
+                for (i = photoList.length - 1; i >= 0; i--) {
+                    var photo = {
+                        link: photoList[i].link[1].href,
+                        src: photoList[i].content.src,
+                        alt: photoList[i].title.$t,
+                        title: photoList[i].summary.$t
+                    };
+                    vm.photos.push(photo);
+                }
             }
             vm.loading = false;
         })
-        .error(function (data) {
-            vm.error_msg = "Sorry, we failed to retrieve the Photos from the Picasa Web Albums API. Logging out of your Google Account and logging back in may resolve this issue.";
+        .error(function () {
+            vm.errorMsg = 'Sorry, we failed to retrieve the Photos from the Picasa Web Albums API. ' +
+                'Logging out of your Google Account and logging back in may resolve this issue.';
             vm.loading = false;
         });
 });
-boomerang.directive('gplusAlbum', function () {
+
+angular.module('gdgXBoomerang')
+.directive('gplusAlbum', function () {
     return {
         scope: {
             article: '=',
             attachment: '='
         },
-        templateUrl: 'app/news/components/gplusAlbum.html'
-    }
+        templateUrl: '/app/news/components/gplusAlbum.html'
+    };
 });
-boomerang.directive('gplusArticle', function () {
+
+angular.module('gdgXBoomerang')
+.directive('gplusArticle', function () {
     return {
         scope: {
             article: '=',
             attachment: '='
         },
-        templateUrl: 'app/news/components/gplusArticle.html'
-    }
+        templateUrl: '/app/news/components/gplusArticle.html'
+    };
 });
-boomerang.directive('gplusEvent', function () {
+
+angular.module('gdgXBoomerang')
+.directive('gplusEvent', function () {
     return {
         scope: { article: '=' },
-        templateUrl: 'app/news/components/gplusEvent.html'
-    }
+        templateUrl: '/app/news/components/gplusEvent.html'
+    };
 });
-boomerang.directive('gplusNoAttachments', function () {
+
+angular.module('gdgXBoomerang')
+.directive('gplusNoAttachments', function () {
     return {
         scope: { article: '=' },
-        templateUrl: 'app/news/components/gplusNoAttachments.html'
-    }
+        templateUrl: '/app/news/components/gplusNoAttachments.html'
+    };
 });
-boomerang.directive('gplusPhotoVideo', function () {
+
+angular.module('gdgXBoomerang')
+.directive('gplusPhotoVideo', function () {
     return {
         scope: {
             article: '=',
             attachment: '='
         },
-        templateUrl: 'app/news/components/gplusPhotoVideo.html'
-    }
+        templateUrl: '/app/news/components/gplusPhotoVideo.html'
+    };
 });
-boomerang.directive('gplusPostContent', function () {
+
+angular.module('gdgXBoomerang')
+.directive('gplusPostContent', function () {
     return {
         transclude: true,
-        templateUrl: 'app/news/components/gplusPostContent.html'
-    }
+        templateUrl: '/app/news/components/gplusPostContent.html'
+    };
 });
 
-boomerang.directive('gplusPostImage', function () {
+angular.module('gdgXBoomerang')
+.directive('gplusPostImage', function () {
     return {
-        templateUrl: 'app/news/components/gplusPostImage.html'
-    }
+        templateUrl: '/app/news/components/gplusPostImage.html'
+    };
 });
 
-boomerang.directive('gplusPostVideo', function ($sce) {
+angular.module('gdgXBoomerang')
+.directive('gplusPostVideo', function ($sce) {
     return {
         link: function (scope, element) {
             scope.videoUrl = $sce.trustAsResourceUrl(scope.attachment.embed.url);
             scope.getDynamicHeight = function () {
                 return (element.prop('clientWidth') * 0.6) + 'px';
-            }
+            };
         },
-        template: '<iframe ng-style="{ height: getDynamicHeight() }" layout layout-fill ng-src="{{ videoUrl }}" frameborder="0" allowfullscreen></iframe>'
-    }
+        templateUrl: '/app/news/components/gplusPostVideo.html'
+    };
 });
 
-boomerang.directive('newsItemFooter', function () {
+angular.module('gdgXBoomerang')
+.directive('newsItemFooter', function () {
     return {
-        templateUrl: 'app/news/components/newsItemFooter.html'
-    }
+        templateUrl: '/app/news/components/newsItemFooter.html'
+    };
 });
