@@ -367,7 +367,7 @@ angular.module('gdgXBoomerang')
             article: '=',
             attachment: '='
         },
-        templateUrl: '/app/news/components/gplusAlbum.html'
+        templateUrl: 'app/news/components/gplusAlbum.html'
     };
 });
 
@@ -378,7 +378,7 @@ angular.module('gdgXBoomerang')
             article: '=',
             attachment: '='
         },
-        templateUrl: '/app/news/components/gplusArticle.html'
+        templateUrl: 'app/news/components/gplusArticle.html'
     };
 });
 
@@ -386,7 +386,7 @@ angular.module('gdgXBoomerang')
 .directive('gplusEvent', function () {
     return {
         scope: { article: '=' },
-        templateUrl: '/app/news/components/gplusEvent.html'
+        templateUrl: 'app/news/components/gplusEvent.html'
     };
 });
 
@@ -394,7 +394,7 @@ angular.module('gdgXBoomerang')
 .directive('gplusNoAttachments', function () {
     return {
         scope: { article: '=' },
-        templateUrl: '/app/news/components/gplusNoAttachments.html'
+        templateUrl: 'app/news/components/gplusNoAttachments.html'
     };
 });
 
@@ -405,7 +405,7 @@ angular.module('gdgXBoomerang')
             article: '=',
             attachment: '='
         },
-        templateUrl: '/app/news/components/gplusPhotoVideo.html'
+        templateUrl: 'app/news/components/gplusPhotoVideo.html'
     };
 });
 
@@ -413,14 +413,14 @@ angular.module('gdgXBoomerang')
 .directive('gplusPostContent', function () {
     return {
         transclude: true,
-        templateUrl: '/app/news/components/gplusPostContent.html'
+        templateUrl: 'app/news/components/gplusPostContent.html'
     };
 });
 
 angular.module('gdgXBoomerang')
 .directive('gplusPostImage', function () {
     return {
-        templateUrl: '/app/news/components/gplusPostImage.html'
+        templateUrl: 'app/news/components/gplusPostImage.html'
     };
 });
 
@@ -433,13 +433,13 @@ angular.module('gdgXBoomerang')
                 return (element.prop('clientWidth') * 0.6) + 'px';
             };
         },
-        templateUrl: '/app/news/components/gplusPostVideo.html'
+        templateUrl: 'app/news/components/gplusPostVideo.html'
     };
 });
 
 angular.module('gdgXBoomerang')
 .directive('newsItemFooter', function () {
     return {
-        templateUrl: '/app/news/components/newsItemFooter.html'
+        templateUrl: 'app/news/components/newsItemFooter.html'
     };
 });
