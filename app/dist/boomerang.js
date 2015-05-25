@@ -24,6 +24,8 @@ angular.module('gdgXBoomerang')
         when('/news', {templateUrl: 'app/news/news.html', controller: 'NewsController', controllerAs: 'vm'}).
         when('/events', {templateUrl: 'app/events/events.html', controller: 'EventsController', controllerAs: 'vm'}).
         when('/photos', {templateUrl: 'app/photos/photos.html', controller: 'PhotosController', controllerAs: 'vm'}).
+        when('/activities', {templateUrl: 'app/activities/activities.html',
+            controller: 'ActivitiesController', controllerAs: 'vm'}).
         otherwise({ redirectTo: '/about' });
 
     $mdThemingProvider.theme('default')
@@ -52,6 +54,16 @@ angular.module('gdgXBoomerang')
                 text: 'Find local events',
                 url: 'http://gdg.events/'
             }
+        },
+        'activities': {
+            techTalks: true,
+            codeLabs: true,
+            hackathons: true,
+            devFests: true,
+            appClinics: true,
+            panels: true,
+            designSprints: true,
+            roundTables: true
         }
         // To update the snippet which is used for sharing, see the TODO in the index.html.
     };
@@ -108,6 +120,166 @@ angular.module('gdgXBoomerang')
             vm.loading = false;
             vm.status = 'ready';
         });
+});
+
+angular.module('gdgXBoomerang')
+.controller('ActivitiesController', function (Config, NavService) {
+    var vm = this;
+    vm.loading = false;
+    NavService.setNavTab(3);
+    vm.activities = [];
+
+    var activityList = {
+        techTalks: {
+            name: 'Tech Talks',
+            description: 'These talks are a grassroots-style series of presentation given by various ' +
+                'technical experts spanning a wide spectrum of topics in technology and related areas.',
+            color: 'purple',
+            icon: '/app/images/icons/ic_mic_48px.svg'
+        },
+        roundTables: {
+            name: 'Round Tables',
+            description: 'Free-form, community-focused events where all attendees can raise topics for discussion.',
+            color: 'darkBlue',
+            icon: '/app/images/icons/ic_local_pizza_48px.svg'
+        },
+        codeLabs: {
+            name: 'Code Labs',
+            description: 'Specially prepared to provide step-by-step instructions, these events focus on ' +
+                'introducing new technology and maximizing hands-on learning.',
+            color: 'green',
+            icon: '/app/images/icons/ic_code_48px.svg'
+        },
+        devFests: {
+            name: 'Dev Fests',
+            description: 'GDG Dev Fests are large scale, community-run events that offer speaker sessions ' +
+                'across single or multiple product areas, hackathons, code labs, and more...',
+            color: 'deepBlue',
+            icon: '/app/images/icons/ic_event_48px.svg'
+        },
+        appClinics: {
+            name: 'App Clinics',
+            description: 'These community events bring together developers, designers, testers, and ' +
+                'usability experts to evaluate specific apps with a focus on constructive criticism, ' +
+                'problem solving, and collaboration.',
+            color: 'yellow',
+            icon: '/app/images/icons/ic_local_hospital_48px.svg'
+        },
+        panels: {
+            name: 'Panels',
+            description: 'These events bring together multiple experts on a topic. The formats can vary from ' +
+                'moderator-led Q&A, debate, focused or free-form discussion, to audience Q&A.',
+            color: 'lightPurple',
+            icon: '/app/images/icons/ic_people_48px.svg'
+        },
+        hackathons: {
+            name: 'Hackathons',
+            description: 'Events where cross-disciplined teams collaborate intensively on specific projects ' +
+                'or challenges. They often involve timed demonstrations and competition for prizes.',
+            color: 'red',
+            icon: '/app/images/icons/ic_timer_48px.svg'
+        },
+        designSprints: {
+            name: 'Design Sprints',
+            description: 'Intense, focused, collaborative brainstorming events where product design is key. ' +
+                'Iterate through the various phases of understanding, sketching, deciding, prototyping, ' +
+                'and testing.',
+            color: 'pink',
+            icon: '/app/images/icons/ic_directions_run_48px.svg'
+        }
+    };
+
+    if (Config.activities.techTalks) {
+        vm.activities.push(activityList.techTalks);
+    }
+    if (Config.activities.roundTables) {
+        vm.activities.push(activityList.roundTables);
+    }
+    if (Config.activities.codeLabs) {
+        vm.activities.push(activityList.codeLabs);
+    }
+    if (Config.activities.devFests) {
+        vm.activities.push(activityList.devFests);
+    }
+    if (Config.activities.appClinics) {
+        vm.activities.push(activityList.appClinics);
+    }
+    if (Config.activities.panels) {
+        vm.activities.push(activityList.panels);
+    }
+    if (Config.activities.hackathons) {
+        vm.activities.push(activityList.hackathons);
+    }
+    if (Config.activities.designSprints) {
+        vm.activities.push(activityList.designSprints);
+    }
+});
+
+angular.module('gdgXBoomerang')
+.controller('EventsController', function ($http, $log, $filter, Config, NavService) {
+    var vm = this;
+    NavService.setNavTab(2);
+    vm.chapterName = Config.name;
+    vm.loading = true;
+    vm.dateFormat = Config.dateFormat;
+    vm.events = { past:[], future:[] };
+
+    var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id + '/events/upcoming?callback=JSON_CALLBACK';
+    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
+    $http.jsonp(url, headers)
+        .success(function (data) {
+            for (var i = data.items.length - 1; i >= 0; i--) {
+                if (data.items[i].about) {
+                    data.items[i].about =
+                        data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                } else {
+                    data.items[i].about = '';
+                }
+                vm.events.future.push(data.items[i]);
+            }
+            vm.events.future = $filter('orderBy')(vm.events.future, 'start', false);
+            vm.loading = false;
+            vm.status = 'ready';
+        })
+        .error(function (response) {
+            vm.upcomingError = 'Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API.';
+            vm.loading = false;
+            vm.status = 'ready';
+            $log.debug('Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API: ' + response);
+        });
+
+    var getPastEventsPage = function(page) {
+        var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id +
+            '/events/past?callback=JSON_CALLBACK&page=' + page;
+        var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 2000 };
+        $http.jsonp(url, headers)
+            .success(function (data) {
+                var i;
+                for (i = data.items.length - 1; i >= 0; i--) {
+                    if (data.items[i].about) {
+                        data.items[i].about =
+                            data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                    } else {
+                        data.items[i].about = '';
+                    }
+                    vm.events.past.push(data.items[i]);
+                }
+                if (data.pages === page) {
+                    vm.events.past = $filter('orderBy')(vm.events.past, 'start', true);
+                    vm.loading = false;
+                    vm.status = 'ready';
+                } else {
+                    getPastEventsPage(page + 1);
+                }
+            })
+            .error(function (response) {
+                vm.pastError = 'Sorry, we failed to retrieve the past events from the GDG-X Hub API.';
+                vm.loading = false;
+                vm.status = 'ready';
+                $log.debug('Sorry, we failed to retrieve the past events from the GDG-X Hub API: ' + response);
+            });
+    };
+    getPastEventsPage(1);
 });
 
 // Google+ hashtag linky from http://plnkr.co/edit/IEpLfZ8gO2B9mJcTKuWY?p=preview
@@ -188,73 +360,6 @@ angular.module('gdgXBoomerang')
 });
 
 angular.module('gdgXBoomerang')
-.controller('EventsController', function ($http, $log, $filter, Config, NavService) {
-    var vm = this;
-    NavService.setNavTab(2);
-    vm.chapterName = Config.name;
-    vm.loading = true;
-    vm.dateFormat = Config.dateFormat;
-    vm.events = { past:[], future:[] };
-
-    var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id + '/events/upcoming?callback=JSON_CALLBACK';
-    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
-    $http.jsonp(url, headers)
-        .success(function (data) {
-            for (var i = data.items.length - 1; i >= 0; i--) {
-                if (data.items[i].about) {
-                    data.items[i].about =
-                        data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
-                } else {
-                    data.items[i].about = '';
-                }
-                vm.events.future.push(data.items[i]);
-            }
-            vm.events.future = $filter('orderBy')(vm.events.future, 'start', false);
-            vm.loading = false;
-            vm.status = 'ready';
-        })
-        .error(function (response) {
-            vm.upcomingError = 'Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API.';
-            vm.loading = false;
-            vm.status = 'ready';
-            $log.debug('Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API: ' + response);
-        });
-
-    var getPastEventsPage = function(page) {
-        var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id +
-            '/events/past?callback=JSON_CALLBACK&page=' + page;
-        var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 2000 };
-        $http.jsonp(url, headers)
-            .success(function (data) {
-                var i;
-                for (i = data.items.length - 1; i >= 0; i--) {
-                    if (data.items[i].about) {
-                        data.items[i].about =
-                            data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
-                    } else {
-                        data.items[i].about = '';
-                    }
-                    vm.events.past.push(data.items[i]);
-                }
-                if (data.pages === page) {
-                    vm.events.past = $filter('orderBy')(vm.events.past, 'start', true);
-                    vm.loading = false;
-                    vm.status = 'ready';
-                } else {
-                    getPastEventsPage(page + 1);
-                }
-            })
-            .error(function (response) {
-                vm.pastError = 'Sorry, we failed to retrieve the past events from the GDG-X Hub API.';
-                vm.loading = false;
-                vm.status = 'ready';
-                $log.debug('Sorry, we failed to retrieve the past events from the GDG-X Hub API: ' + response);
-            });
-    };
-    getPastEventsPage(1);
-});
-
-angular.module('gdgXBoomerang')
 .controller('NewsController', function ($http, $timeout, $filter, $log, $sce, Config, NavService) {
     var vm = this;
     NavService.setNavTab(1);
@@ -327,7 +432,7 @@ angular.module('gdgXBoomerang')
 .controller('PhotosController', function ($http, Config, NavService) {
     var vm = this;
     vm.loading = true;
-    NavService.setNavTab(3);
+    NavService.setNavTab(4);
     vm.chapterName = Config.name;
     vm.photos = [];
 
