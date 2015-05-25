@@ -11,7 +11,8 @@
         <md-grid-tile class="{{ activity.color }}" ng-repeat="activity in vm.activities"
             md-rowspan="1" md-colspan="1">
             <div layout="column">
-                <img ng-src="{{ activity.icon }}" class="activityIcon" alt="{{ activity.name }}">
+                <md-icon md-svg-icon="'{{ activity.icon }}'" class="activityIcon">
+                </md-icon>
                 <p style="padding: 8px">
                     {{ activity.description }}
                 </p>
