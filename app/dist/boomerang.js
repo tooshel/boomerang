@@ -26,11 +26,15 @@ angular.module('gdgXBoomerang')
         when('/photos', {templateUrl: 'app/photos/photos.html', controller: 'PhotosController', controllerAs: 'vm'}).
         when('/activities', {templateUrl: 'app/activities/activities.html',
             controller: 'ActivitiesController', controllerAs: 'vm'}).
+        when('/organizers', {templateUrl: 'app/organizers/organizers.html',
+            controller: 'OrganizersController', controllerAs: 'vm'}).
         otherwise({ redirectTo: '/about' });
 
     $mdThemingProvider.theme('default')
         .primaryPalette('blue')
-        .accentPalette('deep-orange');
+        .accentPalette('green', {
+            'default': 'A700'
+        });
 });
 
 angular.module('gdgXBoomerang')
@@ -360,6 +364,21 @@ angular.module('gdgXBoomerang')
 });
 
 angular.module('gdgXBoomerang')
+.controller('OrganizersController', function ($http, Config, NavService) {
+    var vm = this;
+    vm.loading = false;
+    NavService.setNavTab(4);
+
+    var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id + '?callback=JSON_CALLBACK';
+    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
+    $http.jsonp(url, headers).success(function (data) {
+        if (data.organizers) {
+            vm.organizers = data.organizers;
+        }
+    });
+});
+
+angular.module('gdgXBoomerang')
 .controller('NewsController', function ($http, $timeout, $filter, $log, $sce, Config, NavService) {
     var vm = this;
     NavService.setNavTab(1);
@@ -432,7 +451,7 @@ angular.module('gdgXBoomerang')
 .controller('PhotosController', function ($http, Config, NavService) {
     var vm = this;
     vm.loading = true;
-    NavService.setNavTab(4);
+    NavService.setNavTab(5);
     vm.chapterName = Config.name;
     vm.photos = [];
 
@@ -448,7 +467,7 @@ angular.module('gdgXBoomerang')
                 // Use reverse ordering newest first
                 for (i = photoList.length - 1; i >= 0; i--) {
                     var photo = {
-                        link: photoList[i].link[1].href,
+                        link: photoList[i].link[2].href,
                         src: photoList[i].content.src,
                         alt: photoList[i].title.$t,
                         title: photoList[i].summary.$t
@@ -463,6 +482,33 @@ angular.module('gdgXBoomerang')
                 'Logging out of your Google Account and logging back in may resolve this issue.';
             vm.loading = false;
         });
+});
+
+'use strict';
+
+angular.module('gdgXBoomerang')
+.directive('gplusPerson', function ($http, $filter, Config) {
+    return {
+        restrict: 'EA',
+        templateUrl: 'app/organizers/components/gplus_person.html',
+        scope: {
+            gplusId: '='
+        },
+        link: function (scope) {
+            scope.$watch('gplusId', function (oldVal, newVal) {
+                if (newVal) {
+                    $http.jsonp('https://www.googleapis.com/plus/v1/people/' + newVal +
+                        '?callback=JSON_CALLBACK&fields=aboutMe%2CdisplayName%2Cimage&key=' + Config.googleApi)
+                        .success(function (data) {
+                            if (data && data.image && data.image.url) {
+                                data.image.url = data.image.url.replace('sz=50', 'sz=170');
+                            }
+                            scope.person = data;
+                        });
+                }
+            });
+        }
+    };
 });
 
 angular.module('gdgXBoomerang')
