@@ -1,5 +1,5 @@
 angular.module('gdgXBoomerang', ['ngRoute', 'ngSanitize', 'ngAria', 'ngAnimate', 'ngMaterial'])
-.controller('MainController', function ($rootScope, Config, NavService) {
+.controller('MainController', function ($rootScope, $mdMedia, $mdSidenav, Config, NavService) {
     var mc = this;
     mc.chapterName = Config.name;
     mc.googlePlusLink = 'https://plus.google.com/' + Config.id;
@@ -7,6 +7,8 @@ angular.module('gdgXBoomerang', ['ngRoute', 'ngSanitize', 'ngAria', 'ngAnimate',
     mc.twitterLink = Config.twitter ? 'https://twitter.com/' + Config.twitter : null;
     mc.facebookLink = Config.facebook ? 'https://www.facebook.com/' + Config.facebook : null;
     mc.meetupLink = Config.meetup ? 'http://www.meetup.com/' + Config.meetup : null;
+    $rootScope.$mdMedia = $mdMedia;
+    $rootScope.$mdSidenav = $mdSidenav;
     $rootScope.canonical = Config.domain;
 
     NavService.registerNavListener(function (tab) {
@@ -15,7 +17,7 @@ angular.module('gdgXBoomerang', ['ngRoute', 'ngSanitize', 'ngAria', 'ngAnimate',
 });
 
 angular.module('gdgXBoomerang')
-.config(function ($routeProvider, $locationProvider, $mdThemingProvider) {
+.config(function ($routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider) {
 
     $locationProvider.hashPrefix('!');
 
@@ -35,6 +37,8 @@ angular.module('gdgXBoomerang')
         .accentPalette('green', {
             'default': 'A700'
         });
+
+    $mdIconProvider.fontSet('fa', 'fontawesome');
 });
 
 angular.module('gdgXBoomerang')
@@ -66,7 +70,7 @@ angular.module('gdgXBoomerang')
             devFests: true,
             appClinics: true,
             panels: true,
-            designSprints: false,
+            designSprints: true,
             roundTables: true
         }
         // To update the snippet which is used for sharing, see the TODO in the index.html.
@@ -219,6 +223,73 @@ angular.module('gdgXBoomerang')
     }
 });
 
+angular.module('gdgXBoomerang')
+.controller('EventsController', function ($http, $log, $filter, Config, NavService) {
+    var vm = this;
+    NavService.setNavTab(2);
+    vm.chapterName = Config.name;
+    vm.loading = true;
+    vm.dateFormat = Config.dateFormat;
+    vm.events = { past:[], future:[] };
+
+    var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id + '/events/upcoming?callback=JSON_CALLBACK';
+    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
+    $http.jsonp(url, headers)
+        .success(function (data) {
+            for (var i = data.items.length - 1; i >= 0; i--) {
+                if (data.items[i].about) {
+                    data.items[i].about =
+                        data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                } else {
+                    data.items[i].about = '';
+                }
+                vm.events.future.push(data.items[i]);
+            }
+            vm.events.future = $filter('orderBy')(vm.events.future, 'start', false);
+            vm.loading = false;
+            vm.status = 'ready';
+        })
+        .error(function (response) {
+            vm.upcomingError = 'Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API.';
+            vm.loading = false;
+            vm.status = 'ready';
+            $log.debug('Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API: ' + response);
+        });
+
+    var getPastEventsPage = function(page) {
+        var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id +
+            '/events/past?callback=JSON_CALLBACK&page=' + page;
+        var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 2000 };
+        $http.jsonp(url, headers)
+            .success(function (data) {
+                var i;
+                for (i = data.items.length - 1; i >= 0; i--) {
+                    if (data.items[i].about) {
+                        data.items[i].about =
+                            data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
+                    } else {
+                        data.items[i].about = '';
+                    }
+                    vm.events.past.push(data.items[i]);
+                }
+                if (data.pages === page) {
+                    vm.events.past = $filter('orderBy')(vm.events.past, 'start', true);
+                    vm.loading = false;
+                    vm.status = 'ready';
+                } else {
+                    getPastEventsPage(page + 1);
+                }
+            })
+            .error(function (response) {
+                vm.pastError = 'Sorry, we failed to retrieve the past events from the GDG-X Hub API.';
+                vm.loading = false;
+                vm.status = 'ready';
+                $log.debug('Sorry, we failed to retrieve the past events from the GDG-X Hub API: ' + response);
+            });
+    };
+    getPastEventsPage(1);
+});
+
 // Google+ hashtag linky from http://plnkr.co/edit/IEpLfZ8gO2B9mJcTKuWY?p=preview
 angular.module('gdgXBoomerang')
 .filter('hashLinky', function() {
@@ -297,73 +368,6 @@ angular.module('gdgXBoomerang')
 });
 
 angular.module('gdgXBoomerang')
-.controller('EventsController', function ($http, $log, $filter, Config, NavService) {
-    var vm = this;
-    NavService.setNavTab(2);
-    vm.chapterName = Config.name;
-    vm.loading = true;
-    vm.dateFormat = Config.dateFormat;
-    vm.events = { past:[], future:[] };
-
-    var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id + '/events/upcoming?callback=JSON_CALLBACK';
-    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
-    $http.jsonp(url, headers)
-        .success(function (data) {
-            for (var i = data.items.length - 1; i >= 0; i--) {
-                if (data.items[i].about) {
-                    data.items[i].about =
-                        data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
-                } else {
-                    data.items[i].about = '';
-                }
-                vm.events.future.push(data.items[i]);
-            }
-            vm.events.future = $filter('orderBy')(vm.events.future, 'start', false);
-            vm.loading = false;
-            vm.status = 'ready';
-        })
-        .error(function (response) {
-            vm.upcomingError = 'Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API.';
-            vm.loading = false;
-            vm.status = 'ready';
-            $log.debug('Sorry, we failed to retrieve the upcoming events from the GDG-X Hub API: ' + response);
-        });
-
-    var getPastEventsPage = function(page) {
-        var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id +
-            '/events/past?callback=JSON_CALLBACK&page=' + page;
-        var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 2000 };
-        $http.jsonp(url, headers)
-            .success(function (data) {
-                var i;
-                for (i = data.items.length - 1; i >= 0; i--) {
-                    if (data.items[i].about) {
-                        data.items[i].about =
-                            data.items[i].about.replace(/<br\s*\/?><br\s*\/?><br\s*\/?><br\s*\/?>/g, '<br><br>');
-                    } else {
-                        data.items[i].about = '';
-                    }
-                    vm.events.past.push(data.items[i]);
-                }
-                if (data.pages === page) {
-                    vm.events.past = $filter('orderBy')(vm.events.past, 'start', true);
-                    vm.loading = false;
-                    vm.status = 'ready';
-                } else {
-                    getPastEventsPage(page + 1);
-                }
-            })
-            .error(function (response) {
-                vm.pastError = 'Sorry, we failed to retrieve the past events from the GDG-X Hub API.';
-                vm.loading = false;
-                vm.status = 'ready';
-                $log.debug('Sorry, we failed to retrieve the past events from the GDG-X Hub API: ' + response);
-            });
-    };
-    getPastEventsPage(1);
-});
-
-angular.module('gdgXBoomerang')
 .controller('NewsController', function ($http, $timeout, $filter, $log, $sce, Config, NavService) {
     var vm = this;
     NavService.setNavTab(1);
@@ -438,7 +442,7 @@ angular.module('gdgXBoomerang')
     vm.loading = false;
     NavService.setNavTab(4);
 
-    var url = 'http://hub.gdgx.io/api/v1/chapters/' + Config.id + '?callback=JSON_CALLBACK';
+    var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id + '?callback=JSON_CALLBACK';
     var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
     $http.jsonp(url, headers).success(function (data) {
         if (data.organizers) {
@@ -478,7 +482,7 @@ angular.module('gdgXBoomerang')
             vm.loading = false;
         })
         .error(function () {
-            vm.errorMsg = 'Sorry, we failed to retrieve the Photos from the Picasa Web Albums API. ' +
+            vm.errorMsg = 'Sorry, we failed to retrieve the photos from the Picasa Web Albums API. ' +
                 'Logging out of your Google Account and logging back in may resolve this issue.';
             vm.loading = false;
         });
