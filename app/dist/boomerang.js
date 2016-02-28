@@ -6,6 +6,7 @@ angular.module('gdgXBoomerang', ['ngRoute', 'ngSanitize', 'ngAria', 'ngAnimate',
     mc.gdgLink = 'https://developers.google.com/groups/chapter/' + Config.id + '/';
     mc.twitterLink = Config.twitter ? 'https://twitter.com/' + Config.twitter : null;
     mc.facebookLink = Config.facebook ? 'https://www.facebook.com/' + Config.facebook : null;
+    mc.youtubeLink = Config.youtube ? 'https://www.youtube.com/channel/' + Config.youtube : null;
     mc.meetupLink = Config.meetup ? 'http://www.meetup.com/' + Config.meetup : null;
     $rootScope.$mdMedia = $mdMedia;
     $rootScope.$mdSidenav = $mdSidenav;
@@ -52,6 +53,7 @@ angular.module('gdgXBoomerang')
         'domain'        : 'http://www.gdgspacecoast.org',
         'twitter'       : 'gdgspacecoast',
         'facebook'      : 'gdgspacecoast',
+        'youtube'       : 'UCkiYHK3IZMk5XsYZ626b9Rw',
         'meetup'        : 'gdgspacecoast',
         // Change to 'EEEE, MMMM d, y - H:mm' for 24 hour time format.
         'dateFormat'    : 'EEEE, MMMM d, y - h:mm a',
@@ -233,7 +235,7 @@ angular.module('gdgXBoomerang')
     vm.events = { past:[], future:[] };
 
     var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id + '/events/upcoming?callback=JSON_CALLBACK';
-    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
+    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 10000 };
     $http.jsonp(url, headers)
         .success(function (data) {
             for (var i = data.items.length - 1; i >= 0; i--) {
@@ -259,7 +261,7 @@ angular.module('gdgXBoomerang')
     var getPastEventsPage = function(page) {
         var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id +
             '/events/past?callback=JSON_CALLBACK&page=' + page;
-        var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 2000 };
+        var headers = { 'headers': {'Accept': 'application/json;'}, 'timeout': 10000 };
         $http.jsonp(url, headers)
             .success(function (data) {
                 var i;
@@ -443,7 +445,7 @@ angular.module('gdgXBoomerang')
     NavService.setNavTab(4);
 
     var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id + '?callback=JSON_CALLBACK';
-    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 2000 };
+    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 10000 };
     $http.jsonp(url, headers).success(function (data) {
         if (data.organizers) {
             vm.organizers = data.organizers;
