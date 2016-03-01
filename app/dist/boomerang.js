@@ -24,6 +24,8 @@ angular.module('gdgXBoomerang')
 
     $routeProvider.
         when('/about', {templateUrl: 'app/about/about.html', controller: 'AboutController', controllerAs: 'vm'}).
+        when('/conduct', {templateUrl: 'app/conduct/conduct.html', 
+            controller: 'ConductController', controllerAs: 'vm'}).
         when('/news', {templateUrl: 'app/news/news.html', controller: 'NewsController', controllerAs: 'vm'}).
         when('/events', {templateUrl: 'app/events/events.html', controller: 'EventsController', controllerAs: 'vm'}).
         when('/photos', {templateUrl: 'app/photos/photos.html', controller: 'PhotosController', controllerAs: 'vm'}).
@@ -226,6 +228,14 @@ angular.module('gdgXBoomerang')
 });
 
 angular.module('gdgXBoomerang')
+.controller('ConductController', function ($http, $sce, Config, NavService) {
+    var vm = this;
+    vm.loading = true;
+    NavService.setNavTab(6);
+    vm.chapter = Config.name;
+});
+
+angular.module('gdgXBoomerang')
 .controller('EventsController', function ($http, $log, $filter, Config, NavService) {
     var vm = this;
     NavService.setNavTab(2);
@@ -370,6 +380,21 @@ angular.module('gdgXBoomerang')
 });
 
 angular.module('gdgXBoomerang')
+.controller('OrganizersController', function ($http, Config, NavService) {
+    var vm = this;
+    vm.loading = false;
+    NavService.setNavTab(4);
+
+    var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id + '?callback=JSON_CALLBACK';
+    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 10000 };
+    $http.jsonp(url, headers).success(function (data) {
+        if (data.organizers) {
+            vm.organizers = data.organizers;
+        }
+    });
+});
+
+angular.module('gdgXBoomerang')
 .controller('NewsController', function ($http, $timeout, $filter, $log, $sce, Config, NavService) {
     var vm = this;
     NavService.setNavTab(1);
@@ -436,21 +461,6 @@ angular.module('gdgXBoomerang')
         vm.status = 'ready';
         $log.debug('Sorry, we failed to retrieve the news from the Google+ API: ' + error);
     }
-});
-
-angular.module('gdgXBoomerang')
-.controller('OrganizersController', function ($http, Config, NavService) {
-    var vm = this;
-    vm.loading = false;
-    NavService.setNavTab(4);
-
-    var url = 'https://hub.gdgx.io/api/v1/chapters/' + Config.id + '?callback=JSON_CALLBACK';
-    var headers = { 'headers': { 'Accept': 'application/json;' }, 'timeout': 10000 };
-    $http.jsonp(url, headers).success(function (data) {
-        if (data.organizers) {
-            vm.organizers = data.organizers;
-        }
-    });
 });
 
 angular.module('gdgXBoomerang')
