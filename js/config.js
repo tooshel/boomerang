@@ -1,7 +1,7 @@
 boomerang.factory('Config',function(){
     return {
         //modify these
-        'name'          : 'Phoenix GDG',
+        'name'          : 'GDG Phoenix',
         'id'            : '107371179007921028529',
         'google_api'    : 'AIzaSyDPjRfTjr-X-FB0jRSf06_7rHAvu9oQ3To',
         'pwa_id'        : '5846413253595166705', //picasa web album id, must belong to google+ id above
